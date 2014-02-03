@@ -216,4 +216,16 @@
             var view = new View(bejeweled);
             bejeweled.match();
             view.match();
+
+            $("#gameboard img").click(function(){
+                if (bejeweled.getState() == GameBoard.states.idle){
+                    if (bejeweled.getInitialGamePiece() == "") {
+                        bejeweled.setState(GameBoard.states.swapping);
+                        $(this).toggleClass("glow");
+                        bejeweled.setInitialGamePiece($(this).index());
+                        view.setInitialGamePiece($(this));                    
+                    }
+                    return;
+                }
+            });
         });
