@@ -8,6 +8,11 @@
             this.setRandomShape = function(){
                 this.shape = Math.floor(Math.random() * GamePiece.shapes.length);
             }
+
+            this.setNextShape = function(){
+                this.shape++;
+                if(this.shape > GamePiece.shapes.length - 1) this.shape = 0;
+            }
             //End Instance Methods
 
             //Constructor
@@ -41,6 +46,10 @@
             this.gamePieces = new Array();
             this.initialGamePiece = "";
             this.targetGamePiece = "";
+            this.rangeStart = "";
+            this.rangeEnd = "";
+            this.matchMade = false;
+            this.initialMatch = true;
             //End Instance Members
 
             //Instance Methods
@@ -70,7 +79,56 @@
             }
 
             this.match = function(){
+                for(var row = 0; row < GameBoard.rows; row++){
+                    if(this.rangeEnd == "") {
+                        //length of array - 3 for last matching in row
+                        this.rangeEnd = this.gamePieces.length - 3;
+                    }else{
+                        this.rangeEnd = this.rangeStart  - 3;
+                    }
 
+                    this.rangeStart = this.rangeEnd - GameBoard.cols + 3;
+
+                    for (var piece = this.rangeStart; piece <= this.rangeEnd; piece++) {
+                        if (this.gamePieces[piece].shape == this.gamePieces[piece+1].shape && this.gamePieces[piece+1].shape == this.gamePieces[piece+2].shape){
+                                this.matchMade = true;
+                                if(this.initialMatch){
+                                    this.gamePieces[piece+1].setNextShape();
+                                    this.gamePieces[piece+2].setNextShape();
+                                }
+                        }
+                    }
+                }
+
+                this.rangeEnd = "";
+                this.rangeStart = "";
+
+                for(var col = 0; col < GameBoard.cols; col++){
+                    this.rangeEnd = col + ((GameBoard.rows-3)*GameBoard.cols);
+                    for(piece = col; piece <= this.rangeEnd; piece = piece + GameBoard.rows){
+                        if(this.gamePieces[piece].shape == this.gamePieces[piece+GameBoard.rows].shape && this.gamePieces[piece+GameBoard.rows].shape == this.gamePieces[piece+(GameBoard.rows*2)].shape){
+                            this.matchMade = true;
+                            if(this.initialMatch){
+                                this.gamePieces[piece+GameBoard.rows].setNextShape();
+                                this.gamePieces[piece+GameBoard.rows*2].setNextShape();
+                            }
+                        }
+                    }
+                }
+
+                this.rangeEnd = "";
+                this.rangeStart = "";
+
+                if (this.matchMade){
+                    this.matchMade = false;
+                    if (this.initialMatch) this.match();
+                    this.matchMade = false;
+                    this.initialMatch = false;
+                    return true;
+                }else{
+                    this.initialMatch = false;
+                    return false;
+                }
             }
 
             this.drop = function(){
@@ -104,6 +162,7 @@
             //Instance Members
             this.initialGamePiece = "";
             this.targetGamePiece = "";
+            this.initialMatch = true;
             //End Instance Members
 
             //Instance Methods
@@ -126,7 +185,15 @@
             }
 
             this.match = function(){
-
+                for (var piece = 0; piece < gameBoard.gamePieces.length; piece++) {
+                    if(this.initialMatch){
+                        gameBoard.target.children().eq(piece).attr("src",GamePiece.shapes[gameBoard.gamePieces[piece].shape].url);
+                    }
+                }
+                if(this.initialMatch){
+                    gameBoard.setState(GameBoard.states.idle);
+                    this.initialMatch = false;
+                }
             }
 
             this.drop = function(){
@@ -147,4 +214,6 @@
         $(document).ready(function() {
             var bejeweled = new GameBoard();
             var view = new View(bejeweled);
+            bejeweled.match();
+            view.match();
         });
