@@ -1,0 +1,23 @@
+        * {margin: 0; border: 0; padding: 0;}
+
+        #gameboard {
+            width: 432px;
+            min-width: 432px;
+            max-width: 432px;
+            height: 432px;
+            min-height: 432px;
+            max-height: 432px;
+            background: #bbbbff;
+            border: 5px solid black;
+            font-size: 0;
+        }
+
+        #gameboard img {
+            margin: 2px;
+            width: 50px;
+            min-width: 50px;
+            max-width: 50px;
+            height: 50px;
+            min-height: 50px;
+            max-height: 50px;
+        }
