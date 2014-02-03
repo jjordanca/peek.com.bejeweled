@@ -75,7 +75,27 @@
             }
 
             this.swap = function(){
+                //setting the state here prevents additional clicking while we try the swap
+                this.setState(GameBoard.states.matching);
+                var numInitial = Number(this.initialGamePiece);
+                var numTarget = Number(this.targetGamePiece);
 
+                if (numTarget == numInitial - GameBoard.cols ||
+                    numTarget == numInitial + 1 ||
+                    numTarget == numInitial + GameBoard.cols ||
+                    numTarget == numInitial - 1){
+                    //okay to swap
+                    var temp = "";
+                    temp = this.gamePieces[numInitial];
+                    this.gamePieces[numInitial] = this.gamePieces[numTarget];
+                    this.gamePieces[numTarget] = temp;
+
+                    return true;
+                }else{
+                    //not okay to swap
+                    this.setState(GameBoard.states.swapping);
+                    return false;
+                }
             }
 
             this.match = function(){
@@ -181,7 +201,9 @@
             }
 
             this.swap = function(){
-
+                var temp = this.initialGamePiece.clone();
+                this.initialGamePiece.replaceWith(this.targetGamePiece.replaceWith(temp));
+                this.initialGamePiece = temp;
             }
 
             this.match = function(){
@@ -226,6 +248,24 @@
                         view.setInitialGamePiece($(this));                    
                     }
                     return;
+                }
+
+                if (bejeweled.getState() == GameBoard.states.swapping){
+                    if(view.getInitialGamePiece().index() == $(this).index()){
+                        bejeweled.setState(GameBoard.states.idle);
+                        view.getInitialGamePiece().toggleClass("glow");
+                        bejeweled.setInitialGamePiece("");
+                        view.setInitialGamePiece("");
+                        return;
+                    }else if(view.getInitialGamePiece().index() != $(this).index()){
+                        bejeweled.setTargetGamePiece($(this).index());
+                        if(bejeweled.swap()){
+                            view.setTargetGamePiece($(this));
+                            view.initialGamePiece.removeClass("glow");
+                            $(this).removeClass("glow");
+                            view.swap();
+                        }
+                    }
                 }
             });
         });
