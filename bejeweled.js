@@ -165,7 +165,39 @@
             }
 
             this.drop = function(){
+                for (var piece = this.gamePieces.length - 1; piece >= 0; piece--) {
+                    if(this.gamePieces[piece].markedForRemoval && piece >= GameBoard.cols){
 
+                        var multiplier = 1;
+                        do{
+                            var pieceFound = false;
+                            var pieceToTest = piece - (GameBoard.cols*multiplier);
+                            var resultPiece = "";
+                            var assignNewPiece = false;
+                            if(pieceToTest >= 0 &&
+                                !this.gamePieces[pieceToTest].markedForRemoval){
+                                    pieceFound = true;
+                                    resultPiece = this.gamePieces[pieceToTest];
+                            }else if(pieceToTest < 0){
+                                resultPiece = new GamePiece();
+                                assignNewPiece = true;
+                                pieceFound = true;
+                            }
+                            multiplier++;
+                        }while(pieceFound == false);
+
+                        var temp = this.gamePieces[piece];
+                        this.gamePieces[piece] = resultPiece;
+                        this.gamePieces[pieceToTest] = temp;
+
+                        if(assignNewPiece){
+                            this.target.children().eq(piece).attr("src",GamePiece.shapes[resultPiece.shape].url);
+                        }
+                    }else if(this.gamePieces[piece].markedForRemoval){
+                        this.gamePieces[piece] = new GamePiece();
+                        this.target.children().eq(piece).attr("src",GamePiece.shapes[resultPiece.shape].url);
+                    }
+                }    
             }
             //End Instance Methods
 
@@ -236,7 +268,39 @@
             }
 
             this.drop = function(){
+                for (var piece = gameBoard.gamePieces.length - 1; piece >= 0; piece--) {
+                    if(gameBoard.gamePieces[piece].markedForRemoval == true){
+                        gameBoard.target.children().eq(piece).addClass("destroy");
+                    }
+                }
 
+                for (var piece = gameBoard.gamePieces.length - 1; piece >= 0; piece--) {
+                    var thisPiece = gameBoard.target.children().eq(piece);
+
+                    if(thisPiece.hasClass("destroy") && piece >= GameBoard.cols){
+                        var multiplier = 1;
+                        do{
+                            var pieceFound = false;
+                            var pieceToTest = piece - (GameBoard.cols*multiplier);
+                            var resultPiece = "";
+                            var assignNewPiece = true;
+                            if(pieceToTest >= 0 &&
+                                !gameBoard.target.children().eq(pieceToTest).hasClass("destroy")){
+                                    pieceFound = true;
+                                    resultPiece = gameBoard.target.children().eq(pieceToTest);
+                            }else if(pieceToTest < 0){
+                                assignNewPiece = false;
+                                pieceFound = true;
+                            }
+                            multiplier++;
+                        }while(pieceFound == false);
+
+                        if(assignNewPiece){
+                            var temp = thisPiece.clone();
+                            thisPiece.replaceWith(resultPiece.replaceWith(temp));
+                        }
+                    }
+                }
             }
             //End Instance Methods
 
@@ -256,7 +320,9 @@
             bejeweled.match();
             view.match();
 
-            $("#gameboard img").click(function(){
+            //whoa. jquery only attaches event handlers to objects that currently exist.  found out the hard way. better use a different method.
+            //$("#gameboard img").click(function(){
+            $("#gameboard").on("click", "img", function(){
                 if (bejeweled.getState() == GameBoard.states.idle){
                     if (bejeweled.getInitialGamePiece() == "") {
                         bejeweled.setState(GameBoard.states.swapping);
@@ -264,6 +330,7 @@
                         bejeweled.setInitialGamePiece($(this).index());
                         view.setInitialGamePiece($(this));                    
                     }
+                    //return to prevent the swapping state from dropping through to the next click action
                     return;
                 }
 
@@ -299,6 +366,17 @@
                         view.setTargetGamePiece("");
                         bejeweled.setState(GameBoard.states.idle);
                     }
+                }
+
+                if (bejeweled.getState() == GameBoard.states.dropping){
+                    view.drop();
+                    bejeweled.drop();
+                    bejeweled.target.children().removeClass("destroy");
+                    bejeweled.target.children().removeClass("mark");
+                    bejeweled.setInitialGamePiece("");
+                    bejeweled.setTargetGamePiece("");
+                    view.setInitialGamePiece("");
+                    view.setTargetGamePiece("");
                 }
             });
         });
