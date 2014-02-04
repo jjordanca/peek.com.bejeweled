@@ -55,6 +55,7 @@
             this.rangeEnd = "";
             this.matchMade = false;
             this.initialMatch = true;
+            this.score = 0;
             //End Instance Members
 
             //Instance Methods
@@ -180,6 +181,8 @@
                                     resultPiece = this.gamePieces[pieceToTest];
                             }else if(pieceToTest < 0){
                                 resultPiece = new GamePiece();
+                                this.score += 10;
+                                $("#scorebox").text(this.score);
                                 assignNewPiece = true;
                                 pieceFound = true;
                             }
@@ -195,6 +198,8 @@
                         }
                     }else if(this.gamePieces[piece].markedForRemoval){
                         this.gamePieces[piece] = new GamePiece();
+                        this.score += 10;
+                        $("#scorebox").text(this.score);
                         this.target.children().eq(piece).attr("src",GamePiece.shapes[resultPiece.shape].url);
                     }
                 }    
@@ -358,6 +363,11 @@
                         bejeweled.setState(GameBoard.states.dropping);
                     }else{
                         //If it's not a match, put things back where we found them.
+                        $("#message").text("Invalid Match").fadeOut(1300,function(){
+                            $(this).text("");
+                            $(this).css("display","block");
+                        });
+
                         bejeweled.swap();
                         view.swap();
                         bejeweled.setInitialGamePiece("");
