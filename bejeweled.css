@@ -89,3 +89,9 @@
     -moz-animation-timing-function: ease-in-out;
     animation-timing-function: ease-in-out;
 }
+
+.mark {
+    -webkit-filter: grayscale(1);
+    -moz-filter: grayscale(1);
+    filter: grayscale(1);
+}

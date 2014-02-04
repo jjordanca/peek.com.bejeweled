@@ -2,6 +2,7 @@
         function GamePiece(){
             //Instance Members
             this.shape = "";
+            this.markedForRemoval = false;
             //End Instance Members
 
             //Instance Methods
@@ -12,6 +13,10 @@
             this.setNextShape = function(){
                 this.shape++;
                 if(this.shape > GamePiece.shapes.length - 1) this.shape = 0;
+            }
+
+            this.markForRemoval = function(){
+                this.markedForRemoval = true;
             }
             //End Instance Methods
 
@@ -111,11 +116,15 @@
 
                     for (var piece = this.rangeStart; piece <= this.rangeEnd; piece++) {
                         if (this.gamePieces[piece].shape == this.gamePieces[piece+1].shape && this.gamePieces[piece+1].shape == this.gamePieces[piece+2].shape){
-                                this.matchMade = true;
-                                if(this.initialMatch){
-                                    this.gamePieces[piece+1].setNextShape();
-                                    this.gamePieces[piece+2].setNextShape();
-                                }
+                            this.matchMade = true;
+                            if(this.initialMatch){
+                                this.gamePieces[piece+1].setNextShape();
+                                this.gamePieces[piece+2].setNextShape();
+                            }else{
+                                this.gamePieces[piece].markForRemoval();
+                                this.gamePieces[piece+1].markForRemoval();
+                                this.gamePieces[piece+2].markForRemoval();
+                            }
                         }
                     }
                 }
@@ -131,6 +140,10 @@
                             if(this.initialMatch){
                                 this.gamePieces[piece+GameBoard.rows].setNextShape();
                                 this.gamePieces[piece+GameBoard.rows*2].setNextShape();
+                            }else{
+                                this.gamePieces[piece].markForRemoval();
+                                this.gamePieces[piece+GameBoard.rows].markForRemoval();
+                                this.gamePieces[piece+GameBoard.rows*2].markForRemoval();
                             }
                         }
                     }
@@ -211,6 +224,10 @@
                     if(this.initialMatch){
                         gameBoard.target.children().eq(piece).attr("src",GamePiece.shapes[gameBoard.gamePieces[piece].shape].url);
                     }
+
+                    if(gameBoard.gamePieces[piece].markedForRemoval == true){
+                        gameBoard.target.children().eq(piece).toggleClass("mark");
+                    }
                 }
                 if(this.initialMatch){
                     gameBoard.setState(GameBoard.states.idle);
@@ -265,6 +282,22 @@
                             $(this).removeClass("glow");
                             view.swap();
                         }
+                    }
+                }
+
+                if (bejeweled.getState() == GameBoard.states.matching){
+                    if(bejeweled.match()){
+                        view.match();
+                        bejeweled.setState(GameBoard.states.dropping);
+                    }else{
+                        //If it's not a match, put things back where we found them.
+                        bejeweled.swap();
+                        view.swap();
+                        bejeweled.setInitialGamePiece("");
+                        bejeweled.setTargetGamePiece("");
+                        view.setInitialGamePiece("");
+                        view.setTargetGamePiece("");
+                        bejeweled.setState(GameBoard.states.idle);
                     }
                 }
             });
