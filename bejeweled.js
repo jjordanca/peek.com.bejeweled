@@ -200,7 +200,7 @@
                         this.gamePieces[piece] = new GamePiece();
                         this.score += 10;
                         $("#scorebox").text(this.score);
-                        this.target.children().eq(piece).attr("src",GamePiece.shapes[resultPiece.shape].url);
+                        this.target.children().eq(piece).attr("src",GamePiece.shapes[this.gamePieces[piece].shape].url);
                     }
                 }    
             }
@@ -379,14 +379,18 @@
                 }
 
                 if (bejeweled.getState() == GameBoard.states.dropping){
-                    view.drop();
-                    bejeweled.drop();
-                    bejeweled.target.children().removeClass("destroy");
-                    bejeweled.target.children().removeClass("mark");
+                    while(bejeweled.match()){
+                        view.match();
+                        view.drop();
+                        bejeweled.drop();
+                        bejeweled.target.children().removeClass("destroy");
+                        bejeweled.target.children().removeClass("mark");
+                    }
                     bejeweled.setInitialGamePiece("");
                     bejeweled.setTargetGamePiece("");
                     view.setInitialGamePiece("");
                     view.setTargetGamePiece("");
+                    bejeweled.setState(GameBoard.states.idle);
                 }
             });
         });
