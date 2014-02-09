@@ -39,7 +39,21 @@ class Score implements JsonSerializable {
 	}
 
 	public function storeScore(){
+		$params = array(
+			":user"=>$this->user,
+			":score"=>$this->score
+			);
 
+		if (array_key_exists("userID",$_SESSION)){
+			$params[":id"] = $_SESSION['userID'];		
+			$pdoStatement = $this->pdo->prepare("UPDATE bejeweled_score SET user=:user, score=:score WHERE id=:id");
+			$pdoStatement->execute($params);
+		}else{
+			$pdoStatement = $this->pdo->prepare("INSERT INTO bejeweled_score (user, score) VALUES (:user, :score)");
+			$pdoStatement->execute($params);
+			$this->userID = $this->pdo->lastInsertId('id');
+			$_SESSION['userID'] = $this->userID;		
+		}
 	}
 
 	public function getHighScores(){
@@ -51,9 +65,18 @@ class Score implements JsonSerializable {
 	}
 
     public function jsonSerialize(){
-    	return [
-    		"highScores" => $this->highScores
-    	];
+    	if ($this->user != ""){
+	        return [
+	       		"user" => $this->user,
+	        	"score" => $this->score
+	        ];
+	    }
+        else
+        {
+        	return [
+        		"highScores" => $this->highScores
+        	];
+        }
     }
 }
 
@@ -75,6 +98,19 @@ try{
 }
 
 if (array_key_exists("method",$_POST)) $method = $_POST['method'];
+
+//For debugging purposes
+/*
+if (!array_key_exists("user",$_POST)) $_POST['user'] = "t1estuser";
+if (!array_key_exists("score",$_POST)) $_POST['score'] = "500";
+if ($method == "") $method = "store";
+*/
+
+if ($method == "store"){
+	$score = new Score($pdo, $_POST['user'], $_POST['score']);
+	$score->storeScore();
+    print json_encode($score);
+}
 
 if ($method == "highScores"){
 	$score = new Score($pdo);

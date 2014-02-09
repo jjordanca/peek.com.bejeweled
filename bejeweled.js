@@ -182,7 +182,7 @@
                             }else if(pieceToTest < 0){
                                 resultPiece = new GamePiece();
                                 this.score += 10;
-                                $("#scorebox").text(this.score);
+                                $("#scoreBox").text(this.score);
                                 assignNewPiece = true;
                                 pieceFound = true;
                             }
@@ -195,12 +195,14 @@
 
                         if(assignNewPiece){
                             this.target.children().eq(piece).attr("src",GamePiece.shapes[resultPiece.shape].url);
+                            this.target.children().eq(piece).attr("alt",GamePiece.shapes[resultPiece.shape].name);
                         }
                     }else if(this.gamePieces[piece].markedForRemoval){
                         this.gamePieces[piece] = new GamePiece();
                         this.score += 10;
-                        $("#scorebox").text(this.score);
+                        $("#scoreBox").text(this.score);
                         this.target.children().eq(piece).attr("src",GamePiece.shapes[this.gamePieces[piece].shape].url);
+                        this.target.children().eq(piece).attr("alt",GamePiece.shapes[this.gamePieces[piece].shape].name);
                     }
                 }    
             }
@@ -415,5 +417,25 @@
                     view.setTargetGamePiece("");
                     bejeweled.setState(GameBoard.states.idle);
                 }
+            });
+
+            $("#scoreButton").on("click", function(){
+                var params = new Object();
+                params.user =prompt("Please enter your name to be recorded with the score.")
+                if (params.user == "") params.user = "Anonymous";
+                params.method = "store";
+                params.score = $("#scoreBox").text();
+
+                $.post("score.php",params,"json")
+                .done(function(data) {
+                    alert("Score "+data.score+" recorded for player "+data.user+"!");
+                    view.getHighScores();
+                })
+                .fail(function(jqxhr, textStatus, error) {
+                    var err = textStatus + ', ' + error;
+                    alert("Specific error: "+ err);
+                });
+
+                return false;
             });
         });
