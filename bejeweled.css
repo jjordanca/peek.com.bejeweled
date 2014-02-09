@@ -121,4 +121,28 @@
 #scoreBox {
     border: 1px solid black;
     width: 200px;
+    text-align: right;
+}
+
+#scoreButton {
+    padding: 3px;
+    border: 2px solid black;
+}
+
+#highScores {
+    margin-top: 20px;
+    font-size: 12pt;
+}
+
+#highScores table, #highScores td {
+    border: 1px solid black;
+}
+
+#highScores table {
+    width: 208px;
+    border-collapse: collapse;
+}
+
+#highScores td {
+    padding: 2px;
 }

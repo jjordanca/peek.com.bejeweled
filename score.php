@@ -43,11 +43,17 @@ class Score implements JsonSerializable {
 	}
 
 	public function getHighScores(){
+		$statement = "SELECT user, score FROM bejeweled_score ORDER BY score DESC LIMIT 0, 10";
 
+		foreach ($this->pdo->query($statement) as $row){
+			$this->highScores[] = $row;
+		}
 	}
 
     public function jsonSerialize(){
-
+    	return [
+    		"highScores" => $this->highScores
+    	];
     }
 }
 
@@ -68,4 +74,11 @@ try{
 	die($errorMsg);
 }
 
+if (array_key_exists("method",$_POST)) $method = $_POST['method'];
+
+if ($method == "highScores"){
+	$score = new Score($pdo);
+	$score->getHighScores();
+	print json_encode($score);
+}
 ?>

@@ -250,6 +250,28 @@
                 return this.targetGamePiece;
             }
 
+            this.getHighScores = function(){
+                var params = new Object();
+                params.method = "highScores";
+
+               $.post("score.php",params,"json")
+                .done(function(data) {
+                    $("#highScores table").html("<tr><th colspan='2'>High Scores</th></tr>");
+                            
+                    $.each(data.highScores,function(key,val){
+                        $.each(val, function(subkey, subval){
+                            if (subkey == "user"){
+                                $("#highScores table").append("<tr><td>"+ val["user"] + "</td><td>" + val["score"] + "</td></tr>");
+                            }
+                        });
+                    });
+                })
+                .fail(function(jqxhr, textStatus, error) {
+                    var err = textStatus + ', ' + error;
+                    alert("HighScores Specific error: "+ err);
+                });
+            }            
+
             this.swap = function(){
                 var temp = this.initialGamePiece.clone();
                 this.initialGamePiece.replaceWith(this.targetGamePiece.replaceWith(temp));
@@ -324,6 +346,7 @@
             var view = new View(bejeweled);
             bejeweled.match();
             view.match();
+            view.getHighScores();
 
             //whoa. jquery only attaches event handlers to objects that currently exist.  found out the hard way. better use a different method.
             //$("#gameboard img").click(function(){
