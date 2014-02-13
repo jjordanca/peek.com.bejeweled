@@ -3,5 +3,7 @@ peek.com.bejeweled
 
 peek.com Bejeweled Coding Challenge
 
-I started this challenge before establishing a github repository for it.  I'll publish some
-intermediate steps to show my thought process.
+This is the Fullstack Developer challenge as listed on peek.com's website.  The game can be played at
+
+http://jjordanca.com/content/bejeweled/
+
